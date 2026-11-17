@@ -1,0 +1,265 @@
+\documentclass[aspectratio=141,10pt]{beamer}
+
+% ---------- Look copied from the lecture slides: white, dark red titles, grey text ----------
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,colortbl,array}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\definecolor{aimsred}{HTML}{990000}
+\definecolor{rowpink}{HTML}{F7E9E9}
+\definecolor{textgrey}{HTML}{404040}
+
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=textgrey,bg=white}
+\setbeamercolor{structure}{fg=aimsred}
+\setbeamercolor{frametitle}{fg=aimsred,bg=white}
+\setbeamerfont{frametitle}{series=\bfseries,size=\LARGE}
+\setbeamertemplate{frametitle}{\vskip1.2em\centering\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par\vskip0.4em}
+\setbeamertemplate{itemize item}{\color{aimsred}$\bullet$}
+\setbeamertemplate{itemize subitem}{\color{aimsred}$\circ$}
+\setbeamertemplate{footline}{\hfill\color{textgrey}\footnotesize\insertframenumber\hspace{1em}\vspace{0.6em}}
+
+% Rounded red callout box, like the "Assumption" box in the lectures
+\newcommand{\callout}[2]{%
+  \begin{center}\fcolorbox{aimsred}{rowpink!60}{\begin{minipage}{#1}\centering #2\end{minipage}}\end{center}}
+\newcommand{\hl}[1]{{\bfseries\color{aimsred}#1}}
+
+\title{Comparing stochastic and deterministic models of an endemic infection}
+\subtitle{Project 3, Part 1: the SIRS model}
+\author{}
+\date{}
+
+\begin{document}
+
+% ---------------- Title ----------------
+\begin{frame}[plain]
+\centering
+\vspace{0.5em}
+\includegraphics[height=2.4cm]{img/logo1.png}\\[1.6em]
+{\Large\color{textgrey} Training Workshop on Mathematical Biology 2026}\\[1.2em]
+{\Large\bfseries\color{aimsred} Project 3: stochastic versus deterministic models\\[0.3em]
+Part 1: SIRS endemic equilibrium\\ Part 2: two strains with waning immunity}\\[2.2em]
+\includegraphics[height=1.3cm]{img/logo2.png}\hspace{1.5cm}
+\includegraphics[height=1.0cm]{img/logo3.png}\hspace{1.5cm}
+\includegraphics[height=0.9cm]{img/logo0.png}
+\end{frame}
+
+% ---------------- Question ----------------
+\begin{frame}{What we want to know}
+\begin{itemize}\setlength\itemsep{0.7em}
+  \item Start from the SIR model of Monday and Tuesday.
+  \item Let recovered people lose their immunity and become susceptible again.
+  \item Model the same system in two ways: an ODE model and an event based stochastic model (Gillespie SSA).
+  \item Ask when the infection settles at an \hl{endemic} level, and whether the two models agree.
+\end{itemize}
+\callout{0.8\textwidth}{\textbf{Main question:} if the ODE says the disease persists, does the stochastic model say the same?}
+\end{frame}
+
+% ---------------- Cartoon ----------------
+\begin{frame}{Q1. The model as a cartoon}
+\centering
+\includegraphics[width=0.78\textwidth]{img/fig1.png}\\[0.4em]
+\begin{itemize}
+  \item State $\mathbf x=[S,I,R]$ with $N=S+I+R$ fixed (no births or deaths).
+  \item The new arrow is $R\to S$. It closes the loop $S\to I\to R\to S$.
+\end{itemize}
+\end{frame}
+
+% ---------------- Events table ----------------
+\begin{frame}{Q1 and Q2. Events, state change vectors, propensities}
+\renewcommand{\arraystretch}{1.5}
+\centering
+\begin{tabular}{>{\columncolor{white}}l c c c}
+\rowcolor{aimsred}\color{white}\bfseries Event & \color{white}\bfseries Reaction & \color{white}\bfseries Vector $[\Delta S,\Delta I,\Delta R]$ & \color{white}\bfseries Propensity $a_j(\mathbf x)$\\
+Infection & $S+I\to 2I$ & $[-1,+1,\;0]$ & $\beta\,S\,I$\\
+\rowcolor{rowpink} Recovery & $I\to R$ & $[\;0,-1,+1]$ & $\gamma\,I$\\
+Loss of immunity & $R\to S$ & $[+1,\;0,-1]$ & $\omega\,R$\\
+\end{tabular}
+\vspace{1em}
+\begin{itemize}\setlength\itemsep{0.5em}
+  \item Loss of immunity is a first order event, like cell death on the propensity slide of the CME lecture ($X_i\to$ products, $a=k\,x_i$).
+  \item Each of the $R$ people loses immunity at rate $\omega$, so $a_3=\omega R$. The mean immune time is $1/\omega$.
+  \item Infection uses the mass action form $k\,x_ix_j$ from the same slide, so no division by $N$.
+\end{itemize}
+\end{frame}
+
+% ---------------- ODE ----------------
+\begin{frame}{Q3. The ODE model}
+\[
+\frac{dS}{dt}=-\beta SI+\omega R,\qquad
+\frac{dI}{dt}=\beta SI-\gamma I,\qquad
+\frac{dR}{dt}=\gamma I-\omega R
+\]
+\begin{itemize}\setlength\itemsep{0.6em}
+  \item Each event adds its propensity times its state change vector.
+  \item The three equations add up to zero, so $S+I+R=N$ stays constant.
+  \item Equilibria: set every derivative to zero.
+\end{itemize}
+\callout{0.85\textwidth}{From $dR/dt=0$: $R^*=\dfrac{\gamma}{\omega}I^*$. \quad From $dI/dt=0$: $I^*(\beta S^*-\gamma)=0$.}
+\end{frame}
+
+% ---------------- Equilibria ----------------
+\begin{frame}{Q3. Two equilibria and a critical population size}
+\begin{columns}[T]
+\column{0.47\textwidth}
+\textbf{\color{aimsred} Disease free}\\[0.3em]
+$I^*=0,\; R^*=0,\; S^*=N$\\[0.3em]
+It always exists.\\[1.2em]
+\textbf{\color{aimsred} Endemic}\\[0.3em]
+$S^*=\dfrac{\gamma}{\beta}$, and from $N=S^*+I^*+R^*$:
+\[ N=\frac{\gamma}{\beta}+I^*\Big(1+\frac{\gamma}{\omega}\Big)\]
+\column{0.5\textwidth}
+\callout{0.95\columnwidth}{%
+$\displaystyle I^*=\frac{\omega}{\omega+\gamma}\Big(N-\frac{\gamma}{\beta}\Big)$\\[0.8em]
+$\displaystyle R^*=\frac{\gamma}{\omega+\gamma}\Big(N-\frac{\gamma}{\beta}\Big)$}
+\vspace{0.4em}
+$I^*>0$ exactly when
+\[ N>N_c=\frac{\gamma}{\beta}\quad(\text{that is } \mathcal R_0=\tfrac{\beta N}{\gamma}>1)\]
+With the project values, $N_c=0.15/0.01=15$.
+\end{columns}
+\vspace{0.6em}
+\begin{itemize}
+  \item Stability: on the reduced $(S,I)$ system, $\mathrm{tr}\,J=-(\beta I^*+\omega)<0$ and $\det J=\beta I^*(\beta S^*+\omega)>0$. The endemic point is stable whenever it exists.
+\end{itemize}
+\end{frame}
+
+% ---------------- Dependence ----------------
+\begin{frame}{Q3. How does $I^*$ depend on the parameters?}
+\centering
+\includegraphics[width=\textwidth]{img/fig2.png}
+\begin{itemize}\setlength\itemsep{0.3em}
+  \item Grows linearly with $N$. But $S^*=\gamma/\beta$ does not depend on $N$: extra people end up in $I$ and $R$.
+  \item Increases with $\beta$ and with $\omega$. If $\omega\to0$ we are back to SIR and $I^*\to0$.
+  \item Decreases with $\gamma$ (shorter infections, higher threshold).
+\end{itemize}
+\end{frame}
+
+% ---------------- Parameters ----------------
+\begin{frame}{Q4. Why these parameters?}
+\renewcommand{\arraystretch}{1.5}
+\centering
+\begin{tabular}{l l p{0.5\textwidth}}
+\rowcolor{aimsred}\color{white}\bfseries Parameter & \color{white}\bfseries Value & \color{white}\bfseries Meaning\\
+$\gamma$ & 0.15 day$^{-1}$ & Infectious period of about 6.7 days\\
+\rowcolor{rowpink} $\omega$ & 0.025 day$^{-1}$ & Immunity lasts about 40 days\\
+$\beta$ & 0.01 day$^{-1}$ & Puts the threshold $N_c=\gamma/\beta=15$ inside the range $10\le N\le100$\\
+\rowcolor{rowpink} $T$ & 365 days & Roughly nine immunity periods, enough for transients to settle\\
+\end{tabular}
+\vspace{1em}
+\callout{0.85\textwidth}{$N=10$ gives $\mathcal R_0=0.67<1$ (no endemic state). \quad $N\ge20$ gives $\mathcal R_0>1$.}
+\end{frame}
+
+% ---------------- ODE results ----------------
+\begin{frame}{Q4. Numerical ODE solutions}
+\centering
+\includegraphics[width=\textwidth]{img/fig3.png}\\[0.3em]
+\small
+\begin{tabular}{rrrrrr}
+\rowcolor{aimsred}\color{white}$N$ & \color{white}10 & \color{white}20 & \color{white}30 & \color{white}50 & \color{white}100\\
+$I^*$ theory & 0 & 0.71 & 2.14 & 5.00 & 12.14\\
+\rowcolor{rowpink} $I$ from ODE (long run) & 0 & 0.71 & 2.14 & 5.00 & 12.14\\
+\end{tabular}
+\begin{itemize}
+  \item $N=10$: the infection dies out. $N>15$: an epidemic peak, then damped oscillations toward $I^*$.
+  \item The numerics match the analysis. Close to $N_c$ the approach is slow.
+\end{itemize}
+\end{frame}
+
+% ---------------- SSA ----------------
+\begin{frame}{Q5. Gillespie SSA with the new event}
+\begin{enumerate}\setlength\itemsep{0.6em}
+  \item Compute the three propensities: $\beta SI,\ \gamma I,\ \omega R$, and their sum $a_0$.
+  \item Draw the waiting time $\tau\sim\mathrm{Exp}(a_0)$.
+  \item Pick the event with probability $a_j/a_0$ and update $[S,I,R]$.
+  \item Stop at $t=365$ days, or when $I=0$.
+\end{enumerate}
+\callout{0.85\textwidth}{$I=0$ is an \textbf{absorbing state}: without an infectious person, nobody can be infected again.}
+\begin{itemize}
+  \item Start: one infectious person, $(S_0,I_0,R_0)=(N-1,1,0)$.
+  \item 500 runs for each of 11 values of $N$ between 10 and 100.
+\end{itemize}
+\end{frame}
+
+% ---------------- Trajectories ----------------
+\begin{frame}{Q5. A few SSA runs against the ODE}
+\centering
+\includegraphics[width=\textwidth]{img/fig4.png}
+\begin{itemize}\setlength\itemsep{0.4em}
+  \item Black: ODE and its equilibrium $I^*$. Colours: eight stochastic runs.
+  \item At $N=20$ and $N=50$ all eight runs here end at $I=0$, while the ODE stays endemic.
+  \item At $N=100$ some runs keep fluctuating around the ODE level.
+\end{itemize}
+\end{frame}
+
+% ---------------- Summary table ----------------
+\begin{frame}{Q5. Results over 500 runs}
+\small
+\renewcommand{\arraystretch}{1.25}
+\centering
+\begin{tabular}{r r r r r r r r}
+\rowcolor{aimsred}\color{white}$N$ & \color{white}$\mathcal R_0$ & \color{white}$I^*$ & \color{white}P(alive) & \color{white}median fade out & \color{white}max $I$ SSA & \color{white}max $I$ ODE & \color{white}mean $I$ alive\\
+10 & 0.67 & 0 & 0.00 & 5.5 d & 1.67 & 1.00 & n/a\\
+\rowcolor{rowpink} 15 & 1.00 & 0 & 0.00 & 5.9 d & 2.01 & 1.00 & n/a\\
+20 & 1.33 & 0.71 & 0.00 & 6.1 d & 2.83 & 1.52 & n/a\\
+\rowcolor{rowpink} 25 & 1.67 & 1.43 & 0.00 & 10.1 d & 4.11 & 3.22 & n/a\\
+30 & 2.00 & 2.14 & 0.00 & 11.5 d & 5.32 & 5.54 & n/a\\
+\rowcolor{rowpink} 40 & 2.67 & 3.57 & 0.00 & 42.2 d & 10.45 & 11.26 & n/a\\
+50 & 3.33 & 5.00 & 0.00 & 48.1 d & 14.73 & 17.90 & 5.12\\
+\rowcolor{rowpink} 70 & 4.67 & 7.86 & 0.07 & 64.5 d & 27.24 & 32.80 & 8.00\\
+100 & 6.67 & 12.14 & 0.56 & 99.7 d & 52.57 & 57.37 & 11.99\\
+\end{tabular}
+\\[0.6em]
+{\footnotesize P(alive) is the fraction of runs with $I>0$ at day 365. Mean $I$ is averaged over days 100 to 365 for surviving runs.}
+\end{frame}
+
+% ---------------- Summary plots ----------------
+\begin{frame}{Q5. Persistence, peak and mean level versus $N$}
+\centering
+\includegraphics[width=\textwidth]{img/fig5.png}
+\begin{itemize}\setlength\itemsep{0.4em}
+  \item \hl{Persistence:} the ODE predicts an endemic state for all $N>15$. In the SSA no run survived up to $N=40$, 1 of 500 at $N=50$, 35 of 500 (7\%) at $N=70$ and 278 of 500 (56\%) at $N=100$.
+  \item \hl{Peak:} higher in the SSA for small $N$, lower for large $N$ (some runs die before taking off).
+  \item \hl{Mean level:} when the infection survives, its mean is close to $I^*$.
+\end{itemize}
+\end{frame}
+
+% ---------------- Fade out ----------------
+\begin{frame}{Q5. Where does the infection end up, and when does it vanish?}
+\centering
+\includegraphics[width=0.95\textwidth]{img/fig6.png}
+\begin{itemize}\setlength\itemsep{0.4em}
+  \item At $N=100$ the day 365 distribution has a mass at zero and a second group near $I^*\approx12$.
+  \item Fade out gets later as $N$ grows: median about 10 days at $N=25$, 48 days at $N=50$, 100 days at $N=100$.
+\end{itemize}
+\end{frame}
+
+% ---------------- Answers ----------------
+\begin{frame}{Q5. Answers to the guiding questions}
+\begin{itemize}\setlength\itemsep{0.7em}
+  \item \hl{Does the SSA always give an endemic state when the ODE does?} No. For $N$ from 18 to 40, zero out of 500 runs were still infected at day 365, and only 1 of 500 at $N=50$.
+  \item \hl{How often do they differ?} For all $N>15$ up to 100, at least partly. They only fully agree for $N\le15$.
+  \item \hl{Maximum of $I$?} The SSA peak is above the ODE peak for small $N$ and below it for large $N$.
+  \item \hl{Mean $I$ in the endemic state?} Close to $I^*$: 5.1 vs 5.0 at $N=50$, 8.0 vs 7.9 at $N=70$, 12.0 vs 12.1 at $N=100$.
+\end{itemize}
+\callout{0.9\textwidth}{For $N=18$ to $25$, $I^*$ is below one person. A fraction of a person cannot persist, so $N>N_c$ is necessary but not sufficient for persistence in a small population.}
+\end{frame}
+
+% ---------------- Conclusion ----------------
+\begin{frame}{Take home message}
+\begin{itemize}\setlength\itemsep{0.9em}
+  \item With waning immunity, the ODE predicts an endemic equilibrium when $N>\gamma/\beta$, with $I^*=\frac{\omega}{\omega+\gamma}\big(N-\frac{\gamma}{\beta}\big)$.
+  \item The ODE is the large population picture. It never lets $I$ reach exactly zero.
+  \item In small populations chance matters. The SSA adds a new outcome, \hl{stochastic extinction}, even when $\mathcal R_0>1$.
+  \item When the infection does persist, its average level agrees with the ODE.
+\end{itemize}
+\callout{0.8\textwidth}{Next: Part 2, two strains with waning immunity and cross infection.}
+\end{frame}
+
+\input{part2_frames.tex}
+
+\end{document}

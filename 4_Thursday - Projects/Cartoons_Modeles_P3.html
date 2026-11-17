@@ -1,0 +1,464 @@
+<title>Cartoons Épidémiques</title>
+<style>
+  :root {
+    --bg: #EEF2F0;
+    --surface: #FFFFFF;
+    --surface-2: #F4F8F6;
+    --text: #16211D;
+    --text-muted: #55655F;
+    --border: #D6E0DB;
+    --accent: #1F6F5C;
+    --s-color: #4C6A86;
+    --i1-color: #BF4E2C;
+    --r1-color: #228066;
+    --i2-color: #7C4A9C;
+    --r2-color: #B3802F;
+    --shadow: 0 1px 2px rgba(22,33,29,0.06), 0 10px 28px rgba(22,33,29,0.07);
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101714;
+      --surface: #16211C;
+      --surface-2: #1B2721;
+      --text: #E8EFEA;
+      --text-muted: #9CB0A7;
+      --border: #283830;
+      --accent: #4FBE9E;
+      --s-color: #85A9CB;
+      --i1-color: #E2794F;
+      --r1-color: #3FBE94;
+      --i2-color: #B88FDA;
+      --r2-color: #E3B35E;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 14px 36px rgba(0,0,0,0.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #101714;
+    --surface: #16211C;
+    --surface-2: #1B2721;
+    --text: #E8EFEA;
+    --text-muted: #9CB0A7;
+    --border: #283830;
+    --accent: #4FBE9E;
+    --s-color: #85A9CB;
+    --i1-color: #E2794F;
+    --r1-color: #3FBE94;
+    --i2-color: #B88FDA;
+    --r2-color: #E3B35E;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 14px 36px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 28px 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  header.hero {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(28px, 4vw, 38px);
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .lede {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 68ch;
+  }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 32px clamp(18px, 4vw, 40px) 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 23px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    max-width: 70ch;
+  }
+
+  figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .diagram-frame {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    overflow-x: auto;
+  }
+
+  svg { display: block; max-width: 100%; height: auto; }
+  .diagram-frame svg { margin: 0 auto; }
+
+  figcaption {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 72ch;
+  }
+
+  figcaption strong { color: var(--text); font-weight: 600; }
+
+  .node-label {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 19px;
+  }
+
+  .edge-label {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+
+  .tiny-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  table.vectors {
+    border-collapse: collapse;
+    font-size: 14.5px;
+    width: 100%;
+  }
+
+  table.vectors caption {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-bottom: 8px;
+  }
+
+  table.vectors th, table.vectors td {
+    border: 1px solid var(--border);
+    padding: 9px 14px;
+    text-align: left;
+  }
+
+  table.vectors th {
+    background: var(--surface-2);
+    font-weight: 600;
+  }
+
+  table.vectors td.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  table.vectors td.rate {
+    font-family: var(--font-mono);
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    padding-top: 4px;
+    border-top: 1px dashed var(--border);
+    margin-top: 4px;
+  }
+
+  .legend .item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex: none;
+  }
+
+  .legend .line {
+    width: 22px;
+    height: 0;
+    border-top: 2px solid var(--text-muted);
+    flex: none;
+  }
+  .legend .line.dashed { border-top-style: dashed; }
+
+  footer.note {
+    font-size: 14px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 22px;
+  }
+
+  footer.note strong { color: var(--text); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    section.card { transition: box-shadow 0.2s ease; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="hero">
+    <span class="eyebrow">Projet 3 — Atelier de Biologie Mathématique 2026</span>
+    <h1>Modèles cartoon : SIRS et deux souches</h1>
+    <p class="lede">Deux schémas conceptuels pour poser les équations avant de coder : d'abord le SIRS à une souche avec perte d'immunité (partie 1), puis son extension à deux souches avec immunité croisée et démographie (partie 2).</p>
+  </header>
+
+  <section class="card">
+    <div class="section-head">
+      <span class="section-num">Partie 1</span>
+      <h2>SIRS — équilibre endémique</h2>
+      <p class="subtitle">Un individu rétabli perd son immunité au taux ω et retourne dans le compartiment susceptible : la boucle se referme, ce qui permet à l'infection de se maintenir dans la population.</p>
+    </div>
+
+    <figure>
+      <div class="diagram-frame">
+        <svg viewBox="0 0 640 300" role="img" aria-label="Boucle S vers I vers R vers S : infection, guérison, puis perte d'immunité qui ramène vers S.">
+          <defs>
+            <marker id="arr-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--s-color)"/>
+            </marker>
+            <marker id="arr-i1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--i1-color)"/>
+            </marker>
+            <marker id="arr-r1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--r1-color)"/>
+            </marker>
+          </defs>
+
+          <!-- R -> S : perte d'immunité (bottom curve) -->
+          <path d="M 460,255 Q 290,300 180,255" fill="none" style="stroke:var(--s-color)" stroke-width="2.5" marker-end="url(#arr-s)"/>
+          <text x="320" y="296" text-anchor="middle" class="edge-label" style="fill:var(--s-color)">ω · R  (perte d'immunité)</text>
+
+          <!-- S -> I : infection -->
+          <line x1="165" y1="205" x2="278" y2="102" style="stroke:var(--i1-color)" stroke-width="2.5" marker-end="url(#arr-i1)"/>
+          <text x="140" y="155" text-anchor="middle" class="edge-label" style="fill:var(--i1-color)">β·S·I / N</text>
+
+          <!-- I -> R : guérison -->
+          <line x1="362" y1="102" x2="475" y2="205" style="stroke:var(--r1-color)" stroke-width="2.5" marker-end="url(#arr-r1)"/>
+          <text x="500" y="155" text-anchor="middle" class="edge-label" style="fill:var(--r1-color)">γ · I</text>
+
+          <!-- Nodes -->
+          <rect x="60" y="205" width="120" height="68" rx="10" style="fill:var(--surface);stroke:var(--s-color)" stroke-width="2.5"/>
+          <text x="120" y="247" text-anchor="middle" class="node-label" style="fill:var(--s-color)">S</text>
+
+          <rect x="260" y="34" width="120" height="68" rx="10" style="fill:var(--surface);stroke:var(--i1-color)" stroke-width="2.5"/>
+          <text x="320" y="76" text-anchor="middle" class="node-label" style="fill:var(--i1-color)">I</text>
+
+          <rect x="460" y="205" width="120" height="68" rx="10" style="fill:var(--surface);stroke:var(--r1-color)" stroke-width="2.5"/>
+          <text x="520" y="247" text-anchor="middle" class="node-label" style="fill:var(--r1-color)">R</text>
+        </svg>
+      </div>
+      <figcaption><strong>Mécanisme :</strong> un susceptible S rencontre un infecté I et bascule en I au taux β·S·I⁄N ; un infecté guérit vers R au taux γ·I ; un rétabli R perd son immunité et retourne en S au taux ω·R. La population N = S + I + R est constante — pas de naissance ni de mort dans cette partie.</figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table class="vectors">
+        <caption>Vecteurs de changement d'état (pour la question 1)</caption>
+        <thead>
+          <tr><th>Événement</th><th>ΔS</th><th>ΔI</th><th>ΔR</th><th>Propension</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Infection</td><td class="num">−1</td><td class="num">+1</td><td class="num">0</td><td class="rate">β·S·I / N</td></tr>
+          <tr><td>Guérison</td><td class="num">0</td><td class="num">−1</td><td class="num">+1</td><td class="rate">γ·I</td></tr>
+          <tr><td>Perte d'immunité</td><td class="num">+1</td><td class="num">0</td><td class="num">−1</td><td class="rate">ω·R</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <span class="section-num">Partie 2</span>
+      <h2>Deux souches avec immunité temporaire et démographie</h2>
+      <p class="subtitle">Même boucle, dupliquée pour deux souches, avec en plus : naissances dans S et mortalité naturelle dans chaque compartiment. Système (2.1)–(2.5), en proportions (S + I₁ + I₂ + R₁ + R₂ = 1). Les deux souches n'interagissent que par S.</p>
+    </div>
+
+    <figure>
+      <div class="diagram-frame">
+        <svg viewBox="0 0 960 620" role="img" aria-label="S relié à deux boucles S vers I1 vers R1 vers S et S vers I2 vers R2 vers S ; naissances entrant dans S ; mortalité sortant de chaque compartiment.">
+          <defs>
+            <marker id="arr2-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--s-color)"/>
+            </marker>
+            <marker id="arr2-i1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--i1-color)"/>
+            </marker>
+            <marker id="arr2-r1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--r1-color)"/>
+            </marker>
+            <marker id="arr2-i2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--i2-color)"/>
+            </marker>
+            <marker id="arr2-r2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--r2-color)"/>
+            </marker>
+            <marker id="arr2-mute" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--text-muted)"/>
+            </marker>
+          </defs>
+
+          <!-- Births into S -->
+          <line x1="2" y1="298" x2="40" y2="303" style="stroke:var(--text-muted)" stroke-width="2.2" marker-end="url(#arr2-mute)"/>
+          <text x="4" y="278" class="tiny-label" style="fill:var(--text-muted)">μ</text>
+          <text x="4" y="330" class="tiny-label" style="fill:var(--text-muted)">naissances</text>
+
+          <!-- Death stubs -->
+          <line x1="72" y1="340" x2="42" y2="378" style="stroke:var(--text-muted)" stroke-width="2" marker-end="url(#arr2-mute)"/>
+          <text x="18" y="398" class="tiny-label" style="fill:var(--text-muted)">μ·S</text>
+
+          <line x1="455" y1="50" x2="455" y2="18" style="stroke:var(--text-muted)" stroke-width="2" marker-end="url(#arr2-mute)"/>
+          <text x="455" y="12" text-anchor="middle" class="tiny-label" style="fill:var(--text-muted)">μ·I₁</text>
+
+          <line x1="785" y1="50" x2="812" y2="18" style="stroke:var(--text-muted)" stroke-width="2" marker-end="url(#arr2-mute)"/>
+          <text x="820" y="14" class="tiny-label" style="fill:var(--text-muted)">μ·R₁</text>
+
+          <line x1="455" y1="570" x2="455" y2="602" style="stroke:var(--text-muted)" stroke-width="2" marker-end="url(#arr2-mute)"/>
+          <text x="455" y="615" text-anchor="middle" class="tiny-label" style="fill:var(--text-muted)">μ·I₂</text>
+
+          <line x1="785" y1="570" x2="812" y2="602" style="stroke:var(--text-muted)" stroke-width="2" marker-end="url(#arr2-mute)"/>
+          <text x="820" y="612" class="tiny-label" style="fill:var(--text-muted)">μ·R₂</text>
+
+          <!-- Strain 1 loop -->
+          <line x1="155" y1="282" x2="388" y2="113" style="stroke:var(--i1-color)" stroke-width="2.5" marker-end="url(#arr2-i1)"/>
+          <text x="215" y="175" text-anchor="middle" class="edge-label" style="fill:var(--i1-color)">β₁·S·I₁</text>
+
+          <line x1="530" y1="85" x2="708" y2="85" style="stroke:var(--r1-color)" stroke-width="2.5" marker-end="url(#arr2-r1)"/>
+          <text x="618" y="70" text-anchor="middle" class="edge-label" style="fill:var(--r1-color)">γ₁·I₁</text>
+
+          <path d="M 745,120 Q 440,210 152,288" fill="none" style="stroke:var(--s-color)" stroke-width="2.5" marker-end="url(#arr2-s)"/>
+          <text x="440" y="195" text-anchor="middle" class="edge-label" style="fill:var(--s-color)">ω₁·R₁</text>
+
+          <!-- Strain 2 loop -->
+          <line x1="155" y1="328" x2="388" y2="497" style="stroke:var(--i2-color)" stroke-width="2.5" marker-end="url(#arr2-i2)"/>
+          <text x="215" y="435" text-anchor="middle" class="edge-label" style="fill:var(--i2-color)">β₂·S·I₂</text>
+
+          <line x1="530" y1="535" x2="708" y2="535" style="stroke:var(--r2-color)" stroke-width="2.5" marker-end="url(#arr2-r2)"/>
+          <text x="618" y="552" text-anchor="middle" class="edge-label" style="fill:var(--r2-color)">γ₂·I₂</text>
+
+          <path d="M 745,500 Q 440,410 152,332" fill="none" style="stroke:var(--s-color)" stroke-width="2.5" marker-end="url(#arr2-s)"/>
+          <text x="440" y="425" text-anchor="middle" class="edge-label" style="fill:var(--s-color)">ω₂·R₂</text>
+
+          <!-- Nodes (on top) -->
+          <rect x="40" y="270" width="140" height="70" rx="10" style="fill:var(--surface);stroke:var(--s-color)" stroke-width="2.8"/>
+          <text x="110" y="314" text-anchor="middle" class="node-label" style="fill:var(--s-color)">S</text>
+
+          <rect x="388" y="50" width="134" height="70" rx="10" style="fill:var(--surface);stroke:var(--i1-color)" stroke-width="2.8"/>
+          <text x="455" y="94" text-anchor="middle" class="node-label" style="fill:var(--i1-color)">I₁</text>
+
+          <rect x="718" y="50" width="134" height="70" rx="10" style="fill:var(--surface);stroke:var(--r1-color)" stroke-width="2.8"/>
+          <text x="785" y="94" text-anchor="middle" class="node-label" style="fill:var(--r1-color)">R₁</text>
+
+          <rect x="388" y="500" width="134" height="70" rx="10" style="fill:var(--surface);stroke:var(--i2-color)" stroke-width="2.8"/>
+          <text x="455" y="544" text-anchor="middle" class="node-label" style="fill:var(--i2-color)">I₂</text>
+
+          <rect x="718" y="500" width="134" height="70" rx="10" style="fill:var(--surface);stroke:var(--r2-color)" stroke-width="2.8"/>
+          <text x="785" y="544" text-anchor="middle" class="node-label" style="fill:var(--r2-color)">R₂</text>
+        </svg>
+      </div>
+      <figcaption><strong>Mécanisme :</strong> chaque souche a sa propre boucle S→I→R→S (haut = souche 1, bas = souche 2) : infection β<sub>i</sub>·S·I<sub>i</sub>, guérison γ<sub>i</sub>·I<sub>i</sub>, perte d'immunité ω<sub>i</sub>·R<sub>i</sub>. Les naissances (μ) entrent uniquement dans S ; chaque compartiment perd des individus par mortalité naturelle au taux μ. Un rétabli R₁ ou R₂ ne peut pas être infecté tant que son immunité n'a pas disparu : les deux souches sont en compétition pour les mêmes susceptibles S.</figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table class="vectors">
+        <caption>Chaque flèche correspond à un terme du système (2.1)–(2.5)</caption>
+        <thead>
+          <tr><th>Équation</th><th>Entrées (+)</th><th>Sorties (−)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>(2.1) dS/dt</td><td class="rate">μ + ω₁·R₁ + ω₂·R₂</td><td class="rate">β₁·S·I₁ + β₂·S·I₂ + μ·S</td></tr>
+          <tr><td>(2.2) dI₁/dt</td><td class="rate">β₁·S·I₁</td><td class="rate">γ₁·I₁ + μ·I₁</td></tr>
+          <tr><td>(2.3) dI₂/dt</td><td class="rate">β₂·S·I₂</td><td class="rate">γ₂·I₂ + μ·I₂</td></tr>
+          <tr><td>(2.4) dR₁/dt</td><td class="rate">γ₁·I₁</td><td class="rate">ω₁·R₁ + μ·R₁</td></tr>
+          <tr><td>(2.5) dR₂/dt</td><td class="rate">γ₂·I₂</td><td class="rate">ω₂·R₂ + μ·R₂</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--s-color)"></span>S — susceptible</span>
+      <span class="item"><span class="swatch" style="background:var(--i1-color)"></span>I₁ — infecté souche 1</span>
+      <span class="item"><span class="swatch" style="background:var(--r1-color)"></span>R₁ — rétabli souche 1</span>
+      <span class="item"><span class="swatch" style="background:var(--i2-color)"></span>I₂ — infecté souche 2</span>
+      <span class="item"><span class="swatch" style="background:var(--r2-color)"></span>R₂ — rétabli souche 2</span>
+      <span class="item"><span class="line"></span>transition (infection, guérison, perte d'immunité)</span>
+    </div>
+  </section>
+
+  <footer class="note">
+    <strong>Pour ton rapport :</strong> reproduis ces deux schémas à la main (ou dans ton outil de dessin habituel) avec les mêmes flèches et taux — c'est exactement ce que demandent les questions « cartoon model » des deux parties. Le modèle de la partie 1 est le cas particulier de la partie 2 sans la deuxième souche et sans démographie (μ = 0).
+  </footer>
+
+</div>

@@ -1,0 +1,28 @@
+# LaTeX build files
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.vrb
+
+# Old drafts and backups (kept locally only)
+*_old.*
+*_before_check.*
+*_before_deaths.*
+*_backup*
+
+# Python / Jupyter
+__pycache__/
+.ipynb_checkpoints/
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
